@@ -1,0 +1,19 @@
+{
+  "name": "now-playing-poster",
+  "version": "0.0.1",
+  "description": "Music Poster inspired by Apple Vision OS",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "axios": "^1.9.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "qs": "^6.14.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

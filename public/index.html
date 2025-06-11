@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Now Playing Poster</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        background-color: #f5f5f5;
+        font-family: 'Urbanist', sans-serif;
+      }
+      .album {
+          font-family: 'Urbanist', sans-serif;
+          font-weight: 800;
+          font-size: clamp(2rem, 5vw, 5rem); /* Maximal 5rem, skaliert responsiv */
+          color: #1a1a1a;
+          text-align: center; /* Zentriert den Text */
+          line-height: 1.2;
+          max-height: calc(1.2em * 2); /* Maximal zwei Zeilen */
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+      }
+      .artist {
+          font-family: 'Urbanist', sans-serif;
+          font-weight: 600;
+          font-size: clamp(1.2rem, 3vw, 3rem); /* Responsiv, max 3rem */
+          color: #2c2c2c;
+          text-align: center;
+          line-height: 1.2;
+          max-height: calc(1.2em * 2); /* Maximal zwei Zeilen */
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+      }
+      .jetbrains-mono {
+          font-family: 'JetBrains Mono', monospace;
+          font-weight: 300;
+          font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+          color: #2c2c2c;
+          line-height: 1.2;
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          text-transform: uppercase;
+      }
+      .mono-secondary {
+          font-family: 'JetBrains Mono', monospace;
+          font-weight: 200;
+          font-size: clamp(0.6rem, 1.5vw, 1.2rem);
+          color: #686868;
+          line-height: 1.2;
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body class="flex flex-col justify-between p-[5vw] w-full h-full bg-white rounded-xl">
+
+    <!-- Cover und Name -->
+    <div class="w-full h-full flex flex-col gap-[8vw]">
+      <div class="w-full aspect-square overflow-hidden rounded-lg shadow-md object-top-center flex-col items-center justify-center">
+        <img
+          class="w-full h-full object-cover"
+          src="" alt="Albumcover" id="album-cover"
+        />
+      </div>
+
+      <div class="w-full flex flex-col object-bottom-center mt-4 gap-4">
+        <div class="album" id="album-name">Album</div>
+        <div class="artist" id="artist-name">Artist</div>
+      </div>
+    </div>
+
+    <!-- Fußzeile -->
+    <div class="relative flex flex-row w-full justify-between items-end">
+      <!-- Album, Artist, Year -->
+      <div class="flex flex-col gap-2 uppercase jetbrains-mono max-w-[35vw]" id="album-info">
+        <div id="info-album">
+          <span class="inline-block w-2/3 h-10 bg-gray-200 rounded-2xl animate-pulse"></span>
+        </div>
+        <div id="info-artist">Artist</div>
+        <div id="info-year">Year</div>
+      </div>
+      
+      <!-- Icon und Admin Text-->
+      <div class="absolute bottom-0 left-1/2 -translate-x-1/2 max-w-[30vw] gap-4">
+
+        <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg" alt="Spotify" class="size-8" id="source-icon"/>
+      </div>
+      <!-- Current Song -->
+      <div class="flex flex-row gap-4 items-center max-w-[35vw]">
+        <div id="lottie-wrapper">
+          <dotlottie-player
+          id="lottie-player"
+          src="https://lottie.host/a51872f5-b2ac-41d9-a232-5e0bbd2fc47e/cCbkgIVVlm.json"
+          background="transparent"
+          speed="1"
+          style="width: 24px; height: 24px"
+          loop
+          autoplay
+          ></dotlottie-player>
+        </div>
+        <div class="uppercase jetbrains-mono" id="track-title">Titel</div>
+      </div>
+    </div>
+
+    <script>
+      let pollingInterval = 5000;
+      let intervalHandle = null;
+      let lastTrackId = null;
+
+      function showPlaceholders() {
+        document.getElementById("album-name").innerHTML =
+          '<span class="inline-block w-2/3 h-10 bg-gray-200 rounded-2xl animate-pulse"></span>';
+        document.getElementById("artist-name").innerHTML =
+          '<span class="inline-block w-1/2 h-7 bg-gray-200 rounded-2xl animate-pulse"></span>';
+        const albumCover = document.getElementById("album-cover");
+        albumCover.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+        albumCover.alt = "Albumcover";
+        albumCover.classList.add("bg-gray-200", "animate-pulse");
+        albumCover.style.visibility = "visible";
+        document.getElementById("track-title").innerHTML =
+          '<span class="inline-block w-32 h-6 bg-gray-200 rounded-2xl animate-pulse"></span>';
+        document.getElementById("info-album").innerHTML =
+          '<span class="inline-block w-20 h-5 bg-gray-200 rounded-2xl animate-pulse"></span>';
+        document.getElementById("info-artist").innerHTML =
+          '<span class="inline-block w-20 h-5 bg-gray-200 rounded-2xl animate-pulse"></span>';
+        document.getElementById("info-year").innerHTML =
+          '<span class="inline-block w-14 h-5 bg-gray-200 rounded-2xl animate-pulse"></span>';
+        // Lottie-Animation ausblenden
+        const lottieWrapper = document.getElementById("lottie-wrapper");
+        if (lottieWrapper) lottieWrapper.style.display = "none";
+        // Show Setup QR if none is logged in
+        const qr = document.getElementById("login-qr");
+        if (qr) qr.style.display = "block";
+        // Also disable admin Link
+        // const adminLink = document.getElementById("admin-link");
+        // if (adminLink) adminLink.parentElement.style.display = "none";
+      }
+
+      function startPolling(interval) {
+        if (intervalHandle) clearInterval(intervalHandle);
+        intervalHandle = setInterval(fetchNowPlaying, interval);
+      }
+
+      async function fetchNowPlaying() {
+        try {
+          const res = await fetch("/now-playing");
+          const data = await res.json();
+
+          if (!data || !data.item) {
+            showPlaceholders();
+            lastTrackId = null;
+            // Wieder Intervall auf 5s setzen, falls API mal kurz nicht erreichbar war
+            if (pollingInterval !== 5000) {
+              pollingInterval = 5000;
+              startPolling(pollingInterval);
+            }
+            return;
+          }
+
+          // Song-Daten extrahieren
+          const album = data.item.album.name;
+          const artist = data.item.artists.map(artist => artist.name).join(", ");
+          const title = data.item.name;
+          const albumImageUrl = data.item.album.images[0]?.url || "";
+          const year = data.item.album.release_date?.slice(0, 4) || "";
+          const isPlaying = data.is_playing;
+          const trackId = data.item.id;
+          const progressMs = data.progress_ms;
+          const durationMs = data.item.duration_ms;
+
+          // Prüfe, ob Song gewechselt hat
+          if (lastTrackId !== trackId) {
+            lastTrackId = trackId;
+            // Optional: Irgendwas tun bei Songwechsel (z.B. Animation resetten)
+          }
+
+          // UI aktualisieren
+          document.getElementById("album-name").textContent = album;
+          document.getElementById("artist-name").textContent = artist;
+          document.getElementById("track-title").textContent = title;
+          document.getElementById("info-album").textContent = album;
+          document.getElementById("info-artist").textContent = artist;
+          document.getElementById("info-year").textContent = year;
+
+          const albumCover = document.getElementById("album-cover");
+          albumCover.src = albumImageUrl;
+          albumCover.alt = "Albumcover";
+          albumCover.classList.remove("bg-gray-200", "animate-pulse");
+          albumCover.style.visibility = "visible";
+
+          // Lottie ein-/ausblenden und Play/Pause
+          const lottieWrapper = document.getElementById("lottie-wrapper");
+          if (lottieWrapper) lottieWrapper.style.display = isPlaying ? "block" : "none";
+          const lottie = document.getElementById("lottie-player");
+          if (lottie) {
+            if (isPlaying) lottie.play();
+            else lottie.pause();
+          }
+
+          // --- Smartes Polling: kurz vor Songende häufiger abfragen ---
+          const timeLeft = durationMs - progressMs;
+          if (isPlaying && timeLeft < 7000) {
+            // Weniger als 7 Sekunden bis Songende: schnell pollen!
+            if (pollingInterval !== 1000) {
+              pollingInterval = 1000;
+              startPolling(pollingInterval);
+            }
+          } else {
+            if (pollingInterval !== 5000) {
+              pollingInterval = 5000;
+              startPolling(pollingInterval);
+            }
+          }
+        } catch (err) {
+          showPlaceholders();
+          // Intervall zurücksetzen, falls Fehler
+          if (pollingInterval !== 5000) {
+            pollingInterval = 5000;
+            startPolling(pollingInterval);
+          }
+          console.error("Fehler beim Abrufen der Daten:", err);
+        }
+      }
+
+      // Initial Platzhalter und Polling starten
+      showPlaceholders();
+      fetchNowPlaying();
+      startPolling(pollingInterval);
+    </script>
+    <script>
+      // Wird beim Ausliefern ersetzt!
+      const IP = "{{IP}}";
+      const PORT = "{{PORT}}";
+
+      // Admin-Link einfügen
+      const adminUrl = `http://${IP}:${PORT}/admin`;
+      document.getElementById('admin-link').textContent = adminUrl;
+
+      // QR-Code für Login
+      const loginUrl = `http://${IP}:${PORT}/login`;
+      document.getElementById('login-qr').src =
+        `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(loginUrl)}`;
+    </script>
+
+
+  </body>
+</html>
