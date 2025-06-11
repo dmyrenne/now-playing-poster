@@ -4,6 +4,8 @@ Das Apple Music Poster in der VisonOS 26 war Inspiration für dieses Projekt. Ic
 
 Die Anwendung ist dafür ausgelegt auf einem hochkant betriebenem Bildschirm zu laufen. Es gibt keine Eingabemöglichkeiten im UI, wie bei einem Poster eben.
 
+![Picture](png/screenshot.png)
+
 ## Quick Start
 
 1. **Klonen und Bauen:**
@@ -11,6 +13,16 @@ Die Anwendung ist dafür ausgelegt auf einem hochkant betriebenem Bildschirm zu 
    git clone https://github.com/dmyrenne/nowplaying-poster.git
    cd nowplaying-poster
    docker build -t nowplaying-poster
+
+2. **Spotify Developer Account Setup:**
+    1. If you don't have, create a Spotify developer account
+    1. Go to the [Spotify dashboard](https://developer.spotify.com/dashboard/applications)
+    1. Click Create an app
+    1. You now can see your Client ID and Client Secret
+    1. Now click Edit Settings
+    1. Add http://127.0.0.1:3000/callback to the Redirect URIs
+    1. Scroll down and click Save
+    1. You are now ready to authenticate with Spotify!
 
 2. **Container starten:**
    ```sh
