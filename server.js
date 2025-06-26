@@ -59,6 +59,8 @@ app.get('/login', (req, res) => {
 });
 
 // Step 2: Spotify redirects back with code → exchange for token
+app.set('trust proxy', true);
+
 app.get('/callback', async (req, res) => {
   const protocol = req.protocol;
   const host = req.headers.host;

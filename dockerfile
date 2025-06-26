@@ -14,7 +14,7 @@ WORKDIR /app
 COPY . .
 
 # Installiere nur Production-Abhängigkeiten (package.json/lock nötig!)
-RUN npm install --production
+RUN npm ci --omit=dev
 
 # Standardport, ggf. in .env übersteuerbar
 ENV PORT=3000
