@@ -33,10 +33,10 @@ app.use(express.static('public', { index: false }));
 let accessToken = null;
 let refreshToken = null;
 
-// Liefert index.html und ersetzt {{IP}} und {{PORT}}
+// Liefert index.html und ersetzt {{HOST}} und {{PORT}}
 app.get('/', (req, res) => {
   let html = fs.readFileSync(__dirname + '/public/index.html', 'utf8');
-  html = html.replace('{{IP}}', localIp).replace('{{PORT}}', port);
+  html = html.replace('{{HOST}}', localIp).replace('{{PORT}}', port);
   res.send(html);
 });
 
